@@ -21,3 +21,25 @@ export const getUsers = async (
     next(customError);
   }
 };
+
+export const createUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const newUser = req.body;
+
+    await User.create({ newUser });
+
+    res.status(201).json({ newUser });
+  } catch (error) {
+    const customError = new CustomError(
+      error.message,
+      500,
+      "Sorry, unable to create an user."
+    );
+  }
+
+  next(CustomError);
+};

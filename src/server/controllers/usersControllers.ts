@@ -1,6 +1,8 @@
 import { type NextFunction, type Request, type Response } from "express";
 import User from "../../database/models/User.js";
 import CustomError from "../CustomError/CustomError.js";
+import { UserRegister } from "../types.js";
+import bcrypt from "bcryptjs";
 
 export const getUsers = async (
   req: Request,
@@ -23,23 +25,31 @@ export const getUsers = async (
 };
 
 export const createUser = async (
-  req: Request,
+  req: Request<{}, {}, UserRegister>,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    const newUser = req.body;
+    const { name, email, password, username } = req.body;
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const avatar = req.file?.filename;
 
-    await User.create({ newUser });
+    await User.create({
+      name,
+      email,
+      username,
+      password: hashedPassword,
+      avatar,
+    });
 
-    res.status(201).json({ newUser });
+    const feedbackUserMessage = `You have created an account for ${name} .The username and password have been sent to the e-mail address ${email}.`;
+    res.status(201).json(feedbackUserMessage);
   } catch (error) {
     const customError = new CustomError(
       error.message,
       500,
       "Sorry, unable to create an user."
     );
+    next(customError);
   }
-
-  next(CustomError);
 };

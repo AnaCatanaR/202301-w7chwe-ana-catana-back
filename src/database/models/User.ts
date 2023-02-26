@@ -21,13 +21,13 @@ const userSchema = new Schema({
     unique: true,
   },
   avatar: {
-    type: String,
+    type: Object,
   },
   aboutMe: {
     type: String,
   },
   relationships: {
-    type: Object,
+    type: String,
     friends: {
       type: Array,
     },
